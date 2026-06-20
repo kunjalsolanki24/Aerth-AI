@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aerth AI — Turning Climate Awareness into Daily Action</title>
+  <meta name="description" content="Venture-backed climate-tech platform featuring Carbon Twin modeling, predictive emission forecasts, and interactive lifestyle tracking.">
+  <link rel="stylesheet" href="style.css">
+  <!-- Three.js for 3D Visualizations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- GSAP for smooth timelines and animation curves -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+
+  <!-- Ambient background gradients -->
+  <div class="bg-ambient"></div>
+
+  <!-- Global Toast Notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================
+       SECTION 1: LANDING PAGE & HERO
+       ========================================== -->
+  <section class="landing-view active-view" id="landingView">
+    <header class="landing-header">
+      <div class="brand-wrapper">
+        <div class="brand-logo">A</div>
+        <span class="brand-name">Aerth AI</span>
+      </div>
+      <button class="btn btn-secondary" onclick="appRouter.navigate('login')">Enter Platform</button>
+    </header>
+
+    <div class="landing-hero">
+      <div class="hero-content">
+        <span class="hero-tagline">Venture-Backed Climate Tech</span>
+        <h1 class="hero-title">Predict. Simulate.<br>Reduce Footprint.</h1>
+        <p class="hero-desc">
+          Build your behavioral **Carbon Twin** using predictive AI, run real-time climate impact simulations, and sync actions with global communities to turn awareness into daily metrics.
+        </p>
+        <div class="hero-ctas">
+          <button class="btn btn-primary" onclick="appRouter.startOnboarding()">Begin Carbon Simulation</button>
+          <a class="btn btn-secondary" href="#features-anchor" onclick="appRouter.showSystemSpecs()">System Specifications</a>
+        </div>
+      </div>
+
+      <!-- Floating 3D interactive Earth Visualizer -->
+      <div class="earth-3d-canvas-wrapper">
+        <canvas class="earth-canvas" id="landingEarthCanvas"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       SECTION 2: ONBOARDING ASSESSMENTS
+       ========================================== -->
+  <section class="onboard-view" id="onboardView" style="display: none;">
+    <div class="onboard-container glass-panel glowing-emerald">
+      <div class="progress-header">
+        <h3 id="onboardProgressTitle">Step 1 of 6: Transport</h3>
+        <span id="onboardProgressPercent">16%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="onboardProgressBar"></div>
+      </div>
+
+      <!-- Quiz Form Formatted Progressively -->
+      <form id="onboardForm" onsubmit="event.preventDefault();">
+        
+        <!-- STEP 1: TRANSPORT -->
+        <div class="quiz-step active" data-step="1">
+          <h2 class="quiz-question">How do you commute most often?</h2>
+          <p class="quiz-desc">Commuting profile defines your baseline scope emissions.</p>
+          <div class="options-grid">
+            <button type="button" class="option-card selected" onclick="appOnboarding.setOption(1, 'transport', 'car_gas', 4.5)">
+              <span class="option-title">Gasoline Vehicle</span>
+              <span class="option-desc">Single occupancy standard combustion engine.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(1, 'transport', 'car_hybrid_ev', 1.8)">
+              <span class="option-title">Hybrid / EV</span>
+              <span class="option-desc">Electric, hybrid, or plug-in transport.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(1, 'transport', 'transit', 0.8)">
+              <span class="option-title">Public Transit</span>
+              <span class="option-desc">Buses, trains, subways, light rails.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(1, 'transport', 'active', 0.0)">
+              <span class="option-title">Active Travel</span>
+              <span class="option-desc">Biking, walking, zero emission.</span>
+            </button>
+          </div>
+          <div class="range-slider-wrapper">
+            <div class="slider-metrics">
+              <span>Weekly Mileage</span>
+              <span class="slider-val" id="transportVal">100 miles</span>
+            </div>
+            <input type="range" class="custom-range-slider" min="0" max="500" value="100" id="transportSlider" oninput="appOnboarding.updateSlider('transport')">
+          </div>
+        </div>
+
+        <!-- STEP 2: DIET -->
+        <div class="quiz-step" data-step="2">
+          <h2 class="quiz-question">Choose your dietary profile</h2>
+          <p class="quiz-desc">Food production makes up nearly a quarter of greenhouse gas releases.</p>
+          <div class="options-grid">
+            <button type="button" class="option-card selected" onclick="appOnboarding.setOption(2, 'diet', 'meat_heavy', 3.3)">
+              <span class="option-title">High Meat diet</span>
+              <span class="option-desc">Daily beef, pork, poultry meals.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(2, 'diet', 'flexitarian', 1.9)">
+              <span class="option-title">Flexitarian</span>
+              <span class="option-desc">Balanced diet, occasional red meat.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(2, 'diet', 'vegetarian', 1.4)">
+              <span class="option-title">Vegetarian</span>
+              <span class="option-desc">Eggs, dairy, no animal flesh.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(2, 'diet', 'vegan', 0.9)">
+              <span class="option-title">Plant-Based / Vegan</span>
+              <span class="option-desc">Strict vegan, zero animal ingredients.</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3: UTILITY ENERGY -->
+        <div class="quiz-step" data-step="3">
+          <h2 class="quiz-question">Estimate monthly home energy bill</h2>
+          <p class="quiz-desc">Tracks power grid footprint and heating fuels.</p>
+          <div class="range-slider-wrapper">
+            <div class="slider-metrics">
+              <span>Electricity Bill</span>
+              <span class="slider-val" id="energyVal">$120/mo</span>
+            </div>
+            <input type="range" class="custom-range-slider" min="20" max="500" value="120" id="energySlider" oninput="appOnboarding.updateSlider('energy')">
+          </div>
+          <div class="options-grid">
+            <button type="button" class="option-card selected" onclick="appOnboarding.setOption(3, 'energy_source', 'standard', 1.0)">
+              <span class="option-title">Standard Mix Grid</span>
+              <span class="option-desc">Municipal coal/gas baseline grid.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(3, 'energy_source', 'green', 0.1)">
+              <span class="option-title">Renewable Plan / Solar</span>
+              <span class="option-desc">100% green supply or rooftop panels.</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 4: SHOPPING SPEND -->
+        <div class="quiz-step" data-step="4">
+          <h2 class="quiz-question">How frequently do you buy clothing & electronics?</h2>
+          <p class="quiz-desc">Consumer supply chain emissions represents indirect Scope 3 emissions.</p>
+          <div class="options-grid">
+            <button type="button" class="option-card selected" onclick="appOnboarding.setOption(4, 'shopping', 'high', 2.8)">
+              <span class="option-title">Regularly</span>
+              <span class="option-desc">Weekly purchases, high tech turnover.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(4, 'shopping', 'medium', 1.4)">
+              <span class="option-title">Moderate</span>
+              <span class="option-desc">Monthly upgrades, mindful consumption.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(4, 'shopping', 'minimal', 0.5)">
+              <span class="option-title">Minimalist</span>
+              <span class="option-desc">Buy only when replacing essential items.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(4, 'shopping', 'secondhand', 0.2)">
+              <span class="option-title">Eco / Secondhand</span>
+              <span class="option-desc">Thrift shopping, circular items.</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 5: WASTE MANAGEMENT -->
+        <div class="quiz-step" data-step="5">
+          <h2 class="quiz-question">Rate your food waste & recycling habits</h2>
+          <p class="quiz-desc">Organic decay in landfills emits toxic methane gases.</p>
+          <div class="options-grid">
+            <button type="button" class="option-card selected" onclick="appOnboarding.setOption(5, 'waste', 'low_recycle', 1.5)">
+              <span class="option-title">No Recycling</span>
+              <span class="option-desc">Everything thrown to generic garbage bins.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(5, 'waste', 'average_recycle', 0.8)">
+              <span class="option-title">Standard Recycling</span>
+              <span class="option-desc">Recycle paper/cans, dump organic food.</span>
+            </button>
+            <button type="button" class="option-card" onclick="appOnboarding.setOption(5, 'waste', 'compost_full', 0.3)">
+              <span class="option-title">Compost & Active sorting</span>
+              <span class="option-desc">100% sorting, zero food landfill waste.</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 6: WATER USE -->
+        <div class="quiz-step" data-step="6">
+          <h2 class="quiz-question">Estimate average daily shower duration</h2>
+          <p class="quiz-desc">Heating and distribution of clean water consumes local municipal energy.</p>
+          <div class="range-slider-wrapper">
+            <div class="slider-metrics">
+              <span>Shower Length</span>
+              <span class="slider-val" id="waterVal">10 minutes</span>
+            </div>
+            <input type="range" class="custom-range-slider" min="2" max="30" value="10" id="waterSlider" oninput="appOnboarding.updateSlider('water')">
+          </div>
+        </div>
+
+        <div class="quiz-actions">
+          <button type="button" class="btn btn-secondary" id="onboardPrevBtn" onclick="appOnboarding.prevStep()" disabled>Back</button>
+          <button type="button" class="btn btn-primary" id="onboardNextBtn" onclick="appOnboarding.nextStep()">Next Step</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       SECTION 3: AI PROCESSING TELEMETRY LOAD SCREEN
+       ========================================== -->
+  <section class="ai-processing-view" id="aiProcessingView">
+    <div class="processing-circle-container">
+      <div class="processing-pulse"></div>
+      <div class="processing-pulse"></div>
+      <div class="processing-pulse"></div>
+      <!-- SVG Engine gears -->
+      <svg class="processing-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h2>Constructing Carbon Twin AI Model...</h2>
+    <div class="loading-telemetry-text" id="loadingTelemetry">Mapping parameters...</div>
+  </section>
+
+  <!-- ==========================================
+       SECTION 4: CORE APPLICATION WORKSPACE (WITH SIDEBAR)
+       ========================================== -->
+  <div class="app-container" id="appDashboardView" style="display: none;">
+    
+    <!-- Navigation Sidebar -->
+    <aside class="sidebar">
+      <div class="brand-wrapper">
+        <div class="brand-logo">A</div>
+        <span class="brand-name">Aerth AI</span>
+      </div>
+
+      <nav style="flex-grow: 1;">
+        <ul class="nav-list">
+          <li class="nav-item active" id="navTwin" onclick="appRouter.switchPanel('twin')">
+            <button>
+              <!-- SVG Twin Icon -->
+              <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10M12 2a15.3 15.3 0 0 0-4 10 15.3 15.3 0 0 0 4 10M2 12h20"/></svg>
+              Carbon Twin
+            </button>
+          </li>
+          <li class="nav-item" id="navLogs" onclick="appRouter.switchPanel('logs')">
+            <button>
+              <!-- SVG Log icon -->
+              <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+              Daily Logs
+            </button>
+          </li>
+          <li class="nav-item" id="navChallenges" onclick="appRouter.switchPanel('challenges')">
+            <button>
+              <!-- SVG Medal icon -->
+              <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              Challenges
+            </button>
+          </li>
+          <li class="nav-item" id="navRewards" onclick="appRouter.switchPanel('rewards')">
+            <button>
+              <!-- SVG Shop Gift icon -->
+              <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8V4H8a2 2 0 0 1 0-4h8a2 2 0 0 1 0 4h-4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
+              Rewards
+            </button>
+          </li>
+          <li class="nav-item" id="navReports" onclick="appRouter.switchPanel('reports')">
+            <button>
+              <!-- SVG Chart icon -->
+              <svg class="nav-icon" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+              Reports
+            </button>
+          </li>
+
+        </ul>
+      </nav>
+
+      <!-- Profile Section bottom -->
+      <div class="user-profile-badge">
+        <div class="avatar-ring">
+          <div class="avatar-img" id="sidebarAvatar">US</div>
+          <div class="avatar-streak">
+            <!-- Flame SVG icon -->
+            <svg style="width: 10px; height: 10px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12c0 2 .5 4 1.5 5.5l.5.5C5.5 13 8 11.5 10 11.5c1.5 0 2.5.5 3 1 .5.5.5 1.5 0 2s-1.5.5-2 0c-.5-.5-1-.5-1.5-.5-1.5 0-3 1.5-3 3.5 0 2.5 2 4.5 4.5 4.5 3.5 0 6.5-3 6.5-6.5C18.5 7.5 15.5 2 12 2z"/></svg>
+            <span id="streakCountText">0</span>
+          </div>
+        </div>
+        <div class="user-info">
+          <span class="user-name" id="profileName">User Name</span>
+          <span class="user-level" id="profileLevelText">XP: 0 • Lvl 1</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      
+      <!-- ==========================================
+           TAB PANEL: CARBON TWIN SIMULATOR
+           ========================================== -->
+      <section class="view-section active" id="viewTwin">
+        <div class="reports-header-row">
+          <div>
+            <h1 class="section-title">AI Carbon Twin</h1>
+            <p class="section-subtitle">Real-time behavior forecasting and mitigations simulator.</p>
+          </div>
+          <div class="glass-panel" style="padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 10px;">
+            <span class="kpi-label">Climate Score:</span>
+            <span class="kpi-val" id="climateScoreBadge" style="font-size: 1.5rem; color: var(--accent-emerald);">84</span>
+          </div>
+        </div>
+
+        <div class="kpi-row">
+          <div class="glass-panel kpi-card">
+            <span class="kpi-label">Yearly Baseline</span>
+            <div class="kpi-val-row">
+              <span class="kpi-val" id="dashboardBaselineText">14.5</span>
+              <span class="kpi-unit">tons CO2e</span>
+            </div>
+            <span class="kpi-trend down" id="baselineTrendPercent">
+              ↓ 12% lower than national average
+            </span>
+          </div>
+          <div class="glass-panel kpi-card">
+            <span class="kpi-label">Simulated Reduction</span>
+            <div class="kpi-val-row">
+              <span class="kpi-val" id="dashboardSimText">0.0</span>
+              <span class="kpi-unit">tons saved</span>
+            </div>
+            <span class="kpi-trend down" style="color: var(--accent-sky);" id="simulatedTrendPercent">
+              Target: -30%
+            </span>
+          </div>
+          <div class="glass-panel kpi-card">
+            <span class="kpi-label">Earned Carbon Coins</span>
+            <div class="kpi-val-row">
+              <span class="kpi-val" id="dashboardCoinsText">240</span>
+              <span class="kpi-unit">Coins</span>
+            </div>
+            <span class="kpi-trend down" style="color: var(--accent-amber);">
+              ★ Active Streak Multiplier
+            </span>
+          </div>
+        </div>
+
+        <!-- 3D Polyhedral Twin Mesh Frame -->
+        <div class="twin-container">
+          <div class="glass-panel" style="padding:0; position: relative;">
+            <div class="twin-threejs-window" id="twinCanvasContainer">
+              <!-- Inline Canvas container for Twin -->
+              <canvas style="width: 100%; height: 100%;" id="twin3DCanvas"></canvas>
+              
+              <!-- Indicator LED -->
+              <div class="twin-status-overlay">
+                <div class="twin-status-dot" id="twinStatusDot"></div>
+                <span id="twinStatusText">Optimized Twin state</span>
+              </div>
+            </div>
+            <div style="padding: 1rem; border-top: 1px solid var(--border-glass);">
+              <h4>Twin Geometry Representation</h4>
+              <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                As simulated emissions increase, the geometry spikes and turns red. Lowering parameters yields a perfect, smooth green sphere.
+              </p>
+            </div>
+          </div>
+
+          <!-- Drag and drop simulation sliders -->
+          <div class="glass-panel">
+            <h3>Mitigation Simulator</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+              Adjust target behaviors below to instantly forecast carbon savings and twin geometric transformation.
+            </p>
+            
+            <div class="simulator-controls">
+              
+              <div class="sim-slider-row">
+                <div class="sim-slider-header">
+                  <span>Transport Fuel Mitigation</span>
+                  <span id="simValTransport" class="slider-val">-0.0 Tons</span>
+                </div>
+                <!-- Sliders simulate adjustments (0 = no reduction, 100 = full elimination of category) -->
+                <input type="range" class="custom-range-slider" min="0" max="100" value="0" id="simSliderTransport" oninput="appTwinSimulator.runSimulation()">
+                <span style="font-size:0.75rem; color:var(--text-muted);">Increase train usage, carpooling, or EV shift</span>
+              </div>
+
+              <div class="sim-slider-row">
+                <div class="sim-slider-header">
+                  <span>Dietary Optimization</span>
+                  <span id="simValDiet" class="slider-val">-0.0 Tons</span>
+                </div>
+                <input type="range" class="custom-range-slider" min="0" max="100" value="0" id="simSliderDiet" oninput="appTwinSimulator.runSimulation()">
+                <span style="font-size:0.75rem; color:var(--text-muted);">Transition towards plant-based meals and local foods</span>
+              </div>
+
+              <div class="sim-slider-row">
+                <div class="sim-slider-header">
+                  <span>Residential Utility Solar</span>
+                  <span id="simValEnergy" class="slider-val">-0.0 Tons</span>
+                </div>
+                <input type="range" class="custom-range-slider" min="0" max="100" value="0" id="simSliderEnergy" oninput="appTwinSimulator.runSimulation()">
+                <span style="font-size:0.75rem; color:var(--text-muted);">Switch home provider grid mix to 100% solar/wind plan</span>
+              </div>
+
+              <div class="sim-slider-row">
+                <div class="sim-slider-header">
+                  <span>Water & Conservation Trim</span>
+                  <span id="simValWater" class="slider-val">-0.0 Tons</span>
+                </div>
+                <input type="range" class="custom-range-slider" min="0" max="100" value="0" id="simSliderWater" oninput="appTwinSimulator.runSimulation()">
+                <span style="font-size:0.75rem; color:var(--text-muted);">Install aerated heads, limit landscaping irrigation</span>
+              </div>
+
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+              <button class="btn btn-primary" style="flex-grow: 1;" onclick="appTwinSimulator.applySimulation()">Lock Goals into Habit Plan</button>
+              <button class="btn btn-secondary" onclick="appTwinSimulator.resetSimulation()">Reset</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB PANEL: DAILY LOGS HABIT TRACKER
+           ========================================== -->
+      <section class="view-section" id="viewLogs">
+        <h1 class="section-title">Telemetry & Daily Logs</h1>
+        <p class="section-subtitle">Add daily sustainable actions or carbon metrics directly to the ledger.</p>
+
+        <div class="logs-grid">
+          <!-- Log entry form -->
+          <div class="glass-panel">
+            <h3>Add Footprint Entry</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+              Log parameters to claim XP and update the Carbon Twin simulation dynamically.
+            </p>
+
+            <div class="quick-log-tabs">
+              <button class="quick-log-tab-btn active" id="logTabTransport" onclick="appLogs.setLogCategory('transport')">Transport</button>
+              <button class="quick-log-tab-btn" id="logTabFood" onclick="appLogs.setLogCategory('food')">Diet & Meals</button>
+              <button class="quick-log-tab-btn" id="logTabEnergy" onclick="appLogs.setLogCategory('energy')">Utility Energy</button>
+              <button class="quick-log-tab-btn" id="logTabShopping" onclick="appLogs.setLogCategory('shopping')">Shopping</button>
+              <button class="quick-log-tab-btn" id="logTabWaste" onclick="appLogs.setLogCategory('waste')">Waste & Recycle</button>
+              <button class="quick-log-tab-btn" id="logTabWater" onclick="appLogs.setLogCategory('water')">Water Consumed</button>
+            </div>
+
+            <form id="dailyLogForm" onsubmit="appLogs.handleSubmit(event)">
+              <div class="form-group" id="dynamicLogInputGroup">
+                <label id="logInputLabel">Miles Travelled</label>
+                <input type="number" step="any" min="0" class="form-control" id="logInputAmount" placeholder="e.g. 15" required>
+              </div>
+
+              <div class="form-group">
+                <label>Description / Context</label>
+                <input type="text" class="form-control" id="logInputDesc" placeholder="e.g. Commute to office via subway" required>
+              </div>
+
+              <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary" style="flex-grow: 1;">Submit Action Ledger</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- History view -->
+          <div class="glass-panel">
+            <h3>Telemetry Ledger</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+              Audit logs generated by the user profile.
+            </p>
+            <div class="logs-table-container">
+              <table class="logs-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Value</th>
+                    <th>Mitigation Impact</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="logsTableBody">
+                  <!-- JS generated rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB PANEL: CHALLENGES & LEADERBOARDS
+           ========================================== -->
+      <section class="view-section" id="viewChallenges">
+        <h1 class="section-title">Community Challenges</h1>
+        <p class="section-subtitle">Collaborate with global environmental teams to scale carbon reduction.</p>
+
+        <div class="challenges-grid">
+          <!-- Active challenges list -->
+          <div class="glass-panel">
+            <h3>Active Campaigns</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+              Complete goals to earn Carbon Coins and multiply XP.
+            </p>
+
+            <div id="challengesListContainer">
+              <!-- Dynamically populated challenge list -->
+            </div>
+          </div>
+
+          <!-- Global leaderboards -->
+          <div class="glass-panel">
+            <h3>Regional Leaderboard</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+              Comparing carbon scores across cities.
+            </p>
+            <div class="leaderboard-list" id="leaderboardContainer">
+              <!-- Dynamically populated leaderboard -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB PANEL: REWARDS STORE
+           ========================================== -->
+      <section class="view-section" id="viewRewards">
+        <h1 class="section-title">Green Rewards Store</h1>
+        <p class="section-subtitle">Redeem accumulated Carbon Coins for vetted environmental offsets and product discounts.</p>
+
+        <div class="rewards-store-grid" id="rewardsStoreContainer">
+          <!-- Dynamically populated cards -->
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB PANEL: ANALYTICS & REPORTS
+           ========================================== -->
+      <section class="view-section" id="viewReports">
+        <h1 class="section-title">Climate Analytics Reports</h1>
+        <p class="section-subtitle">Historical footprint timeline tracking and progress summaries.</p>
+
+        <div class="reports-layout">
+          <!-- Main Chart -->
+          <div class="glass-panel">
+            <div class="reports-header-row" style="margin-bottom: 1rem;">
+              <h3>Weekly Footprint Performance (CO2e)</h3>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="appReports.filterReport('weekly')">Weekly</button>
+                <button class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="appReports.filterReport('monthly')">Monthly</button>
+              </div>
+            </div>
+
+            <div class="report-chart-box">
+              <div class="report-trend-line"></div>
+              
+              <div class="chart-bar-group">
+                <span class="chart-bar-val">12.5t</span>
+                <div class="chart-bar-fill" style="height: 80%;"></div>
+                <span class="chart-label">Wk 21</span>
+              </div>
+              <div class="chart-bar-group">
+                <span class="chart-bar-val">11.8t</span>
+                <div class="chart-bar-fill" style="height: 75%;"></div>
+                <span class="chart-label">Wk 22</span>
+              </div>
+              <div class="chart-bar-group">
+                <span class="chart-bar-val">10.4t</span>
+                <div class="chart-bar-fill" style="height: 65%;"></div>
+                <span class="chart-label">Wk 23</span>
+              </div>
+              <div class="chart-bar-group">
+                <span class="chart-bar-val">8.2t</span>
+                <div class="chart-bar-fill target" style="height: 52%;"></div>
+                <span class="chart-label">Current</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Extra report summaries -->
+          <div class="grid-3">
+            <div class="glass-panel">
+              <h4>Transport Split</h4>
+              <p style="font-size: 1.5rem; font-weight: 700; color: var(--accent-sky); margin-top: 0.5rem;">45% of total</p>
+              <span style="font-size: 0.8rem; color: var(--text-secondary);">Highest emission sector this month.</span>
+            </div>
+            <div class="glass-panel">
+              <h4>Diet Offset</h4>
+              <p style="font-size: 1.5rem; font-weight: 700; color: var(--accent-emerald); margin-top: 0.5rem;">-1.4t Saved</p>
+              <span style="font-size: 0.8rem; color: var(--text-secondary);">Resulting from transition to vegetarian.</span>
+            </div>
+            <div class="glass-panel">
+              <h4>Forecast projection</h4>
+              <p style="font-size: 1.5rem; font-weight: 700; color: var(--accent-amber); margin-top: 0.5rem;">Confidence 88%</p>
+              <span style="font-size: 0.8rem; color: var(--text-secondary);">Twin model accuracy rating.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
